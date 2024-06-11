@@ -25,12 +25,11 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      require: true,
+      required: true, // Corrected typo here
       lowercase: true,
       minLength: 10,
       unique: true,
     },
-
     userType: {
       type: String,
       required: true,
@@ -41,4 +40,4 @@ const userSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
-mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema); // Exporting the model
