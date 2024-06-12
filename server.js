@@ -6,35 +6,37 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const app = express();
-const server_config = require("./configs/server.config");
-const db_config = require("./configs/db.config");
-const user_model = require("./models/user.model");
+const serverConfig = require("./configs/server.config");
+const dbConfig = require("./configs/db.config");
+const User = require("./models/user.model");
+
+app.use(express.json());
 
 /**
- * Create an admin user at the starting of the application
+ * Create an admin user at the start of the application
  * if not already present
  */
 
 // Connection with MongoDB
-mongoose.connect(db_config.DB_URL);
+mongoose.connect(dbConfig.DB_URL);
 
 const db = mongoose.connection;
 db.on("error", () => {
   console.log("Error while connecting");
 });
-db.on("open", () => {
+db.once("open", () => {
   console.log("Connected to MongoDB");
   init();
 });
 
 async function init() {
-  const user = await user_model.findOne({ userId: "admin" });
+  const user = await User.findOne({ userId: "admin" });
   if (user) {
     console.log("Admin is already present");
     return;
   }
   try {
-    const newUser = await user_model.create({
+    const newUser = await User.create({
       name: "Vishwa",
       userId: "admin",
       email: "test12345@gmail.com",
@@ -47,9 +49,12 @@ async function init() {
   }
 }
 
+// Stitch routes to the server
+require("./routes/auth.routes")(app);
+
 /**
  * Start the server
  */
-app.listen(server_config.PORT, () => {
-  console.log("Server started on", server_config.PORT);
+app.listen(serverConfig.PORT, () => {
+  console.log("Server started on", serverConfig.PORT);
 });
