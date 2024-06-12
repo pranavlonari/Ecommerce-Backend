@@ -4,6 +4,9 @@
  */
 
 const user_model = require("../models/user.model");
+const jwt = require("jsonwebtoken");
+
+const auth_config = require("../configs/auth.config");
 
 const verifySignUpBody = async (req, res, next) => {
   try {
@@ -60,7 +63,39 @@ const verifySignInBody = async (req, res, next) => {
   next();
 };
 
+const verifyToken = async (req, res, next) => {
+  //check if the token is present in the header
+
+  const token = req.headers["x-acess-token"];
+
+  if (!token) {
+    return res.status(403).send({
+      message: "No token Found: UnAuthorized",
+    });
+  }
+  //if its the valid token
+  jwt.verify(token, auth_config.secret, async (err, decoded) => {
+    if (err) {
+      return res.status(401).send({
+        message: "unauthorized!",
+      });
+    }
+
+    const user = await user_model.findOne({ userId: decoded.id });
+
+    if (!user) {
+      return res
+        .status(400)
+        .send({ message: "Unauthorized , this user token not found" });
+    }
+    next();
+  });
+
+  //then move to next step
+};
+
 module.exports = {
   verifySignUpBody: verifySignUpBody,
   verifySignInBody: verifySignInBody,
+  verifyToken: verifyToken,
 };

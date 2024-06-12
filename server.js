@@ -51,7 +51,7 @@ async function init() {
 
 // Stitch routes to the server
 require("./routes/auth.routes")(app);
-
+require("./routes/category.routes")(app);
 /**
  * Start the server
  */
