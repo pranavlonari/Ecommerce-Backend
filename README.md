@@ -57,7 +57,7 @@ This is a backend API for an e-commerce application. It provides functionalities
 Start the server using the following command:
 
 ```bash
-npm start
+node server.js
 ```
 
 The server will run on `http://localhost:5000`.
