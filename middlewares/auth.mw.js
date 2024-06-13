@@ -1,101 +1,69 @@
-/**
- * create a mw will check if the request body is proper and correct
- *
- */
-
-const user_model = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const authConfig = require("../configs/auth.config");
+const User = require("../models/user.model");
 
-const auth_config = require("../configs/auth.config");
+const verifyToken = (req, res, next) => {
+  const token = req.headers["x-access-token"];
+
+  if (!token) {
+    return res.status(403).send({
+      message: "No token provided. Unauthorized access.",
+    });
+  }
+
+  jwt.verify(token, authConfig.secret, async (err, decoded) => {
+    if (err) {
+      return res.status(401).send({
+        message: "Unauthorized! Invalid token.",
+      });
+    }
+
+    const user = await User.findOne({ userId: decoded.id });
+    if (!user) {
+      return res.status(400).send({
+        message: "Unauthorized! User not found.",
+      });
+    }
+
+    req.userId = decoded.id;
+    next();
+  });
+};
 
 const verifySignUpBody = async (req, res, next) => {
   try {
-    // Check name
-    if (!req.body.name) {
+    if (!req.body.name || !req.body.email || !req.body.userId) {
       return res.status(400).send({
-        message: "failed! Name was not provided in request body",
+        message: "Name, email, and userId are required.",
       });
     }
 
-    // Check email
-    if (!req.body.email) {
-      return res.status(400).send({
-        message: "failed! Email was not provided in request body",
-      });
-    }
-
-    // Check userId
-    if (!req.body.userId) {
-      return res.status(400).send({
-        message: "failed! UserId was not provided in request body",
-      });
-    }
-
-    // Check if the user with the same userId is already present
-    const user = await user_model.findOne({ userId: req.body.userId });
-
+    const user = await User.findOne({ userId: req.body.userId });
     if (user) {
       return res.status(400).send({
-        message: "failed! User with the same userId is already present",
+        message: "User with the same userId already exists.",
       });
     }
     next();
   } catch (err) {
-    console.log("Error while validating");
+    console.log("Error while validating:", err);
     res.status(500).send({
-      message: "Error while validating",
+      message: "Error while validating.",
     });
   }
 };
 
-const verifySignInBody = async (req, res, next) => {
-  if (!req.body.userId) {
+const verifySignInBody = (req, res, next) => {
+  if (!req.body.userId || !req.body.password) {
     return res.status(400).send({
-      message: "userID is not provided",
-    });
-  }
-
-  if (!req.body.password) {
-    return res.status(400).send({
-      message: "password is not provided",
+      message: "UserId and password are required.",
     });
   }
   next();
 };
 
-const verifyToken = async (req, res, next) => {
-  //check if the token is present in the header
-
-  const token = req.headers["x-acess-token"];
-
-  if (!token) {
-    return res.status(403).send({
-      message: "No token Found: UnAuthorized",
-    });
-  }
-  //if its the valid token
-  jwt.verify(token, auth_config.secret, async (err, decoded) => {
-    if (err) {
-      return res.status(401).send({
-        message: "unauthorized!",
-      });
-    }
-
-    const user = await user_model.findOne({ userId: decoded.id });
-
-    if (!user) {
-      return res
-        .status(400)
-        .send({ message: "Unauthorized , this user token not found" });
-    }
-    next();
-  });
-
-  //then move to next step
-};
-
 module.exports = {
-  verifySignUpBody: verifySignUpBody,
-  verifySignInBody: verifySignInBody,
-  verifyToken: verifyToken,
+  verifyToken,
+  verifySignUpBody,
+  verifySignInBody,
 };

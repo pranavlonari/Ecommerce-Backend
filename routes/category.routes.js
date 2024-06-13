@@ -1,12 +1,34 @@
-/**
- * POST localhost:5000/ecomm/api/v1/categories
- */
-category_controller = require("../controllers/category.controller");
-auth_mw = require("../middlewares/auth.mw");
+const categoryController = require("../controllers/category.controller");
+const authMW = require("../middlewares/auth.mw");
+
 module.exports = (app) => {
   app.post(
     "/ecomm/api/v1/categories",
-    [auth_mw.verifyToken],
-    category_controller.createNewCategory
+    [authMW.verifyToken],
+    categoryController.createNewCategory
+  );
+
+  app.get(
+    "/ecomm/api/v1/categories",
+    [authMW.verifyToken],
+    categoryController.getAllCategories
+  );
+
+  app.get(
+    "/ecomm/api/v1/categories/:id",
+    [authMW.verifyToken],
+    categoryController.getCategoryById
+  );
+
+  app.put(
+    "/ecomm/api/v1/categories/:id",
+    [authMW.verifyToken],
+    categoryController.updateCategory
+  );
+
+  app.delete(
+    "/ecomm/api/v1/categories/:id",
+    [authMW.verifyToken],
+    categoryController.deleteCategory
   );
 };
