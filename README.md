@@ -4,7 +4,15 @@ Sure, here is a simplified version of the `README.md` file:
 
 # E-Commerce Backend API
 
-This is a backend API for an e-commerce application. It provides functionalities to manage users, categories, products, and carts. The API is built using Node.js, Express, and MongoDB.
+This project is a backend API for an e-commerce application. It provides essential functionalities to manage users, categories, products, and carts. The API is built using Node.js, Express, and MongoDB, ensuring a robust and scalable solution for e-commerce platforms.
+
+## Features
+
+- **User Authentication:** Users can sign up and sign in securely.
+- **Category Management:** Admins can create, retrieve, update, and delete product categories.
+- **Product Management:** Admins can create, retrieve, update, and delete products.
+- **Cart Management:** Users can add products to their cart, update quantities, and remove products.
+
 
 ## Prerequisites
 
